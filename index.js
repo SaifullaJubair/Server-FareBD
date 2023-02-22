@@ -39,7 +39,7 @@ async function run() {
     // ================xxxxx Jubair code ends here xxxxx================
 
     // ================***** Mustafizur code goes here *****================
-
+    console.log(Hello);
     // ================xxxxx Mustafizur code ends here xxxxx================
 
     // ================***** Jahid code goes here *****================
