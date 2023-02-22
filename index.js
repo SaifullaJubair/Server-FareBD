@@ -20,9 +20,10 @@ const client = new MongoClient(uri, {
 console.log(process.env.DB_USER);
 async function run() {
   try {
-    const testCollection = client.db("TestFareBd").collection("advertised");
+    const testCollection = client.db("FareBd").collection("advertised");
     app.get("/", async (req, res) => {
       console.log("FareBD server is running");
+      res.send('Server runing');
     });
 
     app.get("/test", async (req, res) => {
@@ -39,6 +40,13 @@ async function run() {
     // ================xxxxx Jubair code ends here xxxxx================
 
     // ================***** Mustafizur code goes here *****================
+
+    app.get('/property', async (req, res) => {
+      const property = await client.db("FareBD").collection('property').find().toArray();
+      console.log(property);
+      res.send(property);
+
+    });
 
     // ================xxxxx Mustafizur code ends here xxxxx================
 
