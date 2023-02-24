@@ -19,8 +19,8 @@ const client = new MongoClient(uri, {
 
 console.log(process.env.DB_USER);
 async function run() {
+
    try {
-      // const testCollection = client.db("FareBd").collection("advertised");
       //---------All collection here---------
 
       const propertyCollection = client.db("FareBD").collection("property");
@@ -32,14 +32,18 @@ async function run() {
          res.send('Server runing');
       });
 
-      app.get("/test", async (req, res) => {
-         const testData = await testCollection.find().toArray();
-         res.send(testData);
-      });
 
       // ================***** Rezaul code goes here *****================
+      app.post("/property", async (req, res) => {
+         const doc = req.body;
+         const result = await client
+            .db("FareBD")
+            .collection("property")
+            .insertOne(doc);
+         res.send(result);
+      });
+      // ================xxxxx Rezaul code ends here xxxxx================
 
-      // ================xxxxx Rezaul code end here xxxxx================
 
       // ================***** Jubair code goes here *****================
       app.get('/searchByDivision/:name', async (req, res) => {
@@ -47,7 +51,6 @@ async function run() {
          const result = await propertyCollection.find({ division: name }).toArray();
          console.log(result, name);
          res.send(result);
-
       })
       app.post('/adduser', async (req, res) => {
          const user = req.body;
@@ -59,7 +62,6 @@ async function run() {
          else {
             const result = await usersCollection.insertOne(user);
             res.send(result);
-
          }
       });
 
