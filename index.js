@@ -90,10 +90,13 @@ async function run() {
     // ================xxxxx Jubair code ends here xxxxx================
 
 
-    // ================***** Jahid code goes here *****================
+    // ================***** Zahid's code start here *****================
+    app.get('/recent-post', async (req, res) => {
+      const recentPost = await client.db("FareBD").collection("property").find().sort({post_date:1}).limit(2).toArray();
+      res.send(recentPost);
+      })
 
-
-    // ================xxxxx Jahid code ends here xxxxx================
+    // ================xxxxx Zahid's code ends here xxxxx================
 
     // ================***** Amit Paul code goes here *****================
 
