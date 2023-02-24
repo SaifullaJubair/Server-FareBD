@@ -2,14 +2,14 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
-
+const { MongoClient, ServerApiVersion } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 //middleware
 app.use(cors());
 app.use(express.json());
 
-const { MongoClient, ServerApiVersion } = require("mongodb");
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.d0qpidn.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -39,16 +39,27 @@ async function run() {
 
     // ================xxxxx Jubair code ends here xxxxx================
 
-    // ================***** Mustafizur code goes here *****================
+    // ================***** Mostafizur code goes here *****================
 
     app.get('/property', async (req, res) => {
       const property = await client.db("FareBD").collection('property').find().toArray();
-      console.log(property);
+      // console.log(property);
       res.send(property);
-
     });
 
-    // ================xxxxx Mustafizur code ends here xxxxx================
+    app.get('/forSell', async (req, res) => {
+      const toSell = await client.db("FareBD").collection('property').find({ property_condition: "toSell" }).toArray();
+      // console.log(toSell);
+      res.send(toSell);
+    });
+
+    app.get('/forRent', async (req, res) => {
+      const toRent = await client.db("FareBD").collection('property').find({ property_condition: "toRent" }).toArray();
+      // console.log(forRent);
+      res.send(toRent);
+    });
+
+    // ================xxxxx Mostafizur code ends here xxxxx================
 
     // ================***** Jahid code goes here *****================
 
@@ -61,6 +72,7 @@ async function run() {
     // ================***** Anik Datta code goes here *****================
 
     // ================xxxxx Anik Datta code ends here xxxxx================
+
   } finally {
   }
 }
