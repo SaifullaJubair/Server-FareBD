@@ -12,60 +12,86 @@ app.use(express.json());
 const { MongoClient, ServerApiVersion } = require("mongodb");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.d0qpidn.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverApi: ServerApiVersion.v1,
+   useNewUrlParser: true,
+   useUnifiedTopology: true,
+   serverApi: ServerApiVersion.v1,
 });
 
 console.log(process.env.DB_USER);
 async function run() {
-  try {
-    const testCollection = client.db("FareBd").collection("advertised");
-    app.get("/", async (req, res) => {
-      console.log("FareBD server is running");
-      res.send('Server runing');
-    });
+   try {
+      // const testCollection = client.db("FareBd").collection("advertised");
+      //---------All collection here---------
 
-    app.get("/test", async (req, res) => {
-      const testData = await testCollection.find().toArray();
-      res.send(testData);
-    });
+      const propertyCollection = client.db("FareBD").collection("property");
+      const usersCollection = client.db('FareBD').collection('users');
 
-    // ================***** Rezaul code goes here *****================
+      //---------All collection End here---------
+      app.get("/", async (req, res) => {
+         console.log("FareBD server is running");
+         res.send('Server runing');
+      });
 
-    // ================xxxxx Rezaul code end here xxxxx================
+      app.get("/test", async (req, res) => {
+         const testData = await testCollection.find().toArray();
+         res.send(testData);
+      });
 
-    // ================***** Jubair code goes here *****================
+      // ================***** Rezaul code goes here *****================
 
-    // ================xxxxx Jubair code ends here xxxxx================
+      // ================xxxxx Rezaul code end here xxxxx================
 
-    // ================***** Mustafizur code goes here *****================
+      // ================***** Jubair code goes here *****================
+      app.get('/searchByDivision/:name', async (req, res) => {
+         const name = req.params.name;
+         const result = await propertyCollection.find({ division: name }).toArray();
+         console.log(result, name);
+         res.send(result);
 
-    app.get('/property', async (req, res) => {
-      const property = await client.db("FareBD").collection('property').find().toArray();
-      console.log(property);
-      res.send(property);
+      })
+      app.post('/adduser', async (req, res) => {
+         const user = req.body;
+         console.log(user);
+         const findemail = await usersCollection.findOne({ email: user.email })
+         if (findemail.email) {
 
-    });
+         }
+         else {
+            const result = await usersCollection.insertOne(user);
+            res.send(result);
 
-    // ================xxxxx Mustafizur code ends here xxxxx================
+         }
+      });
 
-    // ================***** Jahid code goes here *****================
+      // ================xxxxx Jubair code ends here xxxxx================
 
-    // ================xxxxx Jahid code ends here xxxxx================
+      // ================***** Mustafizur code goes here *****================
 
-    // ================***** Amit Paul code goes here *****================
+      app.get('/property', async (req, res) => {
+         const property = await propertyCollection.find().toArray();
+         console.log(property);
+         res.send(property);
 
-    // ================xxxxx Amit Paul code ends here xxxxx================
+      });
 
-    // ================***** Anik Datta code goes here *****================
+      // ================xxxxx Mustafizur code ends here xxxxx================
 
-    // ================xxxxx Anik Datta code ends here xxxxx================
-  } finally {
-  }
+      // ================***** Jahid code goes here *****================
+
+      // ================xxxxx Jahid code ends here xxxxx================
+
+      // ================***** Amit Paul code goes here *****================
+
+      // ================xxxxx Amit Paul code ends here xxxxx================
+
+      // ================***** Anik Datta code goes here *****================
+
+      // ================xxxxx Anik Datta code ends here xxxxx================
+   } finally {
+   }
 }
 run().catch((error) => console.error(error));
 
 app.listen(port, () => {
-  console.log(`FareBD server is running on ${port}`);
+   console.log(`FareBD server is running on ${port}`);
 });
