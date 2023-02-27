@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const port = process.env.PORT || 5000;
 
 //middleware
@@ -47,33 +47,47 @@ async function run() {
 
     // ================***** Mostafizur code goes here *****================
 
+    // for all property api
     app.get('/property', async (req, res) => {
       const property = await client.db("FareBD").collection('property').find().toArray();
       // console.log(property);
       res.send(property);
     });
 
+    // for sell only
     app.get('/forSell', async (req, res) => {
       const toSell = await client.db("FareBD").collection('property').find({ property_condition: "toSell" }).toArray();
       // console.log(toSell);
       res.send(toSell);
     });
 
+    // for rent only
     app.get('/forRent', async (req, res) => {
       const toRent = await client.db("FareBD").collection('property').find({ property_condition: "toRent" }).toArray();
       // console.log(forRent);
       res.send(toRent);
     });
 
+    // details of single division data api
+    app.get('/singleproperty/:id', async (req, res) => {
+      const id = req.params.id;
+      // console.log(name);
+      const result = await propertyCollection.findOne({ _id: new ObjectId(id) });
+      console.log(result);
+      res.send(result);
+    })
+
     // ================xxxxx Mostafizur code ends here xxxxx================
 
     // ================***** Jubair code goes here *****================
     app.get('/searchByDivision/:name', async (req, res) => {
-      const name = req.params.name.toLowerCase();
+      const name = req.params.name;
+      // console.log(name);
       const result = await propertyCollection.find({ division: name }).toArray();
       console.log(result, name);
       res.send(result);
     })
+
     app.post('/adduser', async (req, res) => {
       const user = req.body;
       console.log(user);
@@ -92,9 +106,9 @@ async function run() {
 
     // ================***** Zahid's code start here *****================
     app.get('/recent-post', async (req, res) => {
-      const recentPost = await client.db("FareBD").collection("property").find().sort({post_date:1}).limit(2).toArray();
+      const recentPost = await client.db("FareBD").collection("property").find().sort({ post_date: 1 }).limit(2).toArray();
       res.send(recentPost);
-      })
+    })
 
     // ================xxxxx Zahid's code ends here xxxxx================
 
