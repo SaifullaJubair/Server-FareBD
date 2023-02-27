@@ -69,12 +69,11 @@ async function run() {
     });
 
     // details of single division data api
-    app.get('/searchByDivision/:name/:id', async (req, res) => {
-      const name = req.params.name;
+    app.get('/singleproperty/:id', async (req, res) => {
       const id = req.params.id;
       // console.log(name);
-      const result = await propertyCollection.findOne({ division: name, _id: new ObjectId(id) });
-      console.log(result, name);
+      const result = await propertyCollection.findOne({ _id: new ObjectId(id) });
+      console.log(result);
       res.send(result);
     })
 
