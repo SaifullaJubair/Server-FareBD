@@ -105,11 +105,17 @@ async function run() {
 
 
     // ================***** Zahid's code start here *****================
+    // recent 2 posts
     app.get('/recent-post', async (req, res) => {
-      const recentPost = await client.db("FareBD").collection("property").find().sort({ post_date: 1 }).limit(2).toArray();
+      const recentPost = await client.db("FareBD").collection("property").find().sort({ post_date: -1 }).limit(2).toArray();
       res.send(recentPost);
     })
 
+      // recently added 5 properties
+    app.get('/recent-properties', async (req, res) => {
+      const recentProperties = await client.db("FareBD").collection("property").find().sort({ post_date: -1 }).limit(5).toArray();
+      res.send(recentProperties);
+    })
     // ================xxxxx Zahid's code ends here xxxxx================
 
     // ================***** Amit Paul code goes here *****================
