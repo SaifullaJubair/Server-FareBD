@@ -116,6 +116,13 @@ async function run() {
       const recentProperties = await client.db("FareBD").collection("property").find().sort({ post_date: -1 }).limit(5).toArray();
       res.send(recentProperties);
     })
+
+    app.get('/my-posts', async (req, res) => {
+      // const userEmail = req.query.email;
+      // const query = {user_email: userEmail}
+      const myPosts = await client.db("FareBD").collection("property").find().toArray();
+      res.send(myPosts);
+    })
     // ================xxxxx Zahid's code ends here xxxxx================
 
     // ================***** Amit Paul code goes here *****================
