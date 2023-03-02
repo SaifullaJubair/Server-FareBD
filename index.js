@@ -89,19 +89,54 @@ async function run() {
       res.send(result);
     })
 
+
+    app.get('/users', async (req, res) => {
+      const query = {}
+      const users = await usersCollection.find(query).sort({ createdAt: -1 }).toArray()
+      res.send(users)
+    })
+
+    app.get('/users/:id', async (req, res) => {
+      const id = req.params.id
+      const query = { _id: new ObjectId(id) }
+      const user = await usersCollection.findOne(query)
+      res.send(user)
+    })
+    app.get('/singleuser/:e', async (req, res) => {
+
+      const e = req.params.e
+      const query = { email: e }
+      const result = await usersCollection.findOne(query)
+
+      res.send(result)
+    })
+
     app.post('/adduser', async (req, res) => {
       const user = req.body;
-      console.log(user);
-      const findemail = await usersCollection.findOne({ email: user.email })
-      if (findemail.email) {
-
-      }
-      else {
-        const result = await usersCollection.insertOne(user);
-        res.send(result);
-      }
+      // console.log(user);
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
     });
 
+    app.put('/users/update/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const option = { upsert: true }
+      const updatedDoc = {
+        $set: {
+          role: 'admin'
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updatedDoc, option);
+      res.send(result)
+    })
+
+    app.delete('/users/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const result = await usersCollection.deleteOne(filter)
+      res.send(result)
+    })
     // ================xxxxx Jubair code ends here xxxxx================
 
 
@@ -112,7 +147,7 @@ async function run() {
       res.send(recentPost);
     })
 
-      // recently added 5 properties
+    // recently added 5 properties
     app.get('/recent-properties', async (req, res) => {
       const recentProperties = await client.db("FareBD").collection("property").find().sort({ post_date: -1 }).limit(5).toArray();
       res.send(recentProperties);
@@ -184,7 +219,7 @@ async function run() {
     })
 
     // delete user id
-    app.delete('/getBlog/:id',  async (req, res) => {
+    app.delete('/getBlog/:id', async (req, res) => {
       try {
         const id = req.params.id;
         const filter = { _id: new ObjectId(id) }
