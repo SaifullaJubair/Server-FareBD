@@ -25,6 +25,7 @@ async function run() {
 
     const propertyCollection = client.db("FareBD").collection("property");
     const usersCollection = client.db('FareBD').collection('users');
+    const blogCollection = client.db('FareBD').collection('blog');
 
     //---------All collection End here---------
     app.get("/", async (req, res) => {
@@ -126,7 +127,81 @@ async function run() {
     // ================xxxxx Zahid's code ends here xxxxx================
 
     // ================***** Amit Paul code goes here *****================
+    app.post('/postBlog', async (req, res) => {
+      try {
 
+        const blog = req.body;
+        console.log(blog);
+        const result = await blogCollection.insertOne(blog);
+        console.log(result);
+        res.send({
+          success: true,
+          data: result,
+          message: 'Successfully get data'
+        })
+      } catch (error) {
+        res.send({
+          success: false,
+          error: error.message,
+        })
+      }
+    })
+
+    app.get('/getBlog', async (req, res) => {
+      try {
+        const query = {}
+
+        const result = await blogCollection.find(query).toArray()
+
+        res.send({
+          success: true,
+          data: result,
+          message: 'Successfully get data'
+        })
+      } catch (error) {
+        res.send({
+          success: false,
+          error: error.message,
+        })
+      }
+    })
+
+    app.get('/getBlog/:id', async (req, res) => {
+      try {
+        const id = req.params.id
+        const query = { _id: new ObjectId(id) }
+
+        const resust = await blogCollection.findOne(query)
+        console.log(resust);
+        res.send(resust)
+
+      } catch (error) {
+        res.send({
+          success: false,
+          error: error.message,
+        })
+      }
+    })
+
+    // delete user id
+    app.delete('/getBlog/:id',  async (req, res) => {
+      try {
+        const id = req.params.id;
+        const filter = { _id: new ObjectId(id) }
+        const query = await blogCollection.deleteOne(filter);
+        res.send({
+          success: true,
+          data: query,
+          message: 'Successfully get data'
+        })
+
+      } catch (error) {
+        res.send({
+          success: false,
+          error: error.message,
+        })
+      }
+    })
     // ================xxxxx Amit Paul code ends here xxxxx================
 
     // ================***** Anik Datta code goes here *****================
