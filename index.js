@@ -27,6 +27,8 @@ async function run() {
     const usersCollection = client.db("FareBD").collection("users");
     const blogCollection = client.db("FareBD").collection("blog");
     const paymentsCollection = client.db("eStall").collection("payments");
+    const wishListCollection = client.db('FareBD').collection('wishlist');
+    const advertiseCollection = client.db('FareBD').collection('advertise');
 
     //---------All collection End here---------
     app.get("/", async (req, res) => {
@@ -256,6 +258,55 @@ async function run() {
         .toArray();
       res.send(myPosts);
     });
+
+    // All Properties 
+    app.get('/all-properties', async(req, res)=>{
+      const allProperties = await client.db("FareBD").collection("property").find().toArray();
+      res.send(allProperties);
+    })
+
+    // Seller Properties 
+    app.get('/my-posts/:email', async (req, res) => {
+      const userEmail = req.params.email;
+      const query = { user_email: userEmail }
+      const myPosts = await client.db("FareBD").collection("property").find(query).toArray();
+      res.send(myPosts);
+    })
+
+    // Admin All Wishlist
+    app.get('/wishlist', async (req, res) => {
+      const wishlist = await wishListCollection.find().sort({ createdAt: -1 }).toArray();
+      res.send(wishlist);
+    })
+    // Buyer My Wishlist
+    app.get('/wishlist/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { userEmail: email };
+      const cursor = wishListCollection.find(query);
+      const wishlist = await cursor.sort({ createdAt: -1 }).toArray();
+      res.send(wishlist);
+    })
+
+    // Advertise Post 
+    app.post('/advertise', async (req, res) => {
+      const post = req.body;
+      const advertises = await advertiseCollection.find().toArray();
+      const itemFound = advertises.find(item=>item._id === post._id)
+      if (itemFound) {
+        res.send({ message: "Item already advertised!" })
+      } else {
+        const result = await advertiseCollection.insertOne(post);
+        res.send(result);
+      }
+    })
+
+    // Delete single property
+    app.delete('/singleproperty/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const result = await propertyCollection.deleteOne(filter)
+      res.send(result)
+    })
     // ================xxxxx Zahid's code ends here xxxxx================
 
     // ================***** Amit Paul code goes here *****================
