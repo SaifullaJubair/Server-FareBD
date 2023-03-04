@@ -29,6 +29,7 @@ async function run() {
     const paymentsCollection = client.db("eStall").collection("payments");
     const wishListCollection = client.db("FareBD").collection("wishlist");
     const advertiseCollection = client.db("FareBD").collection("advertise");
+    const feedbackCollection = client.db('FareBD').collection('feedback');
 
     //---------All collection End here---------
     app.get("/", async (req, res) => {
@@ -393,6 +394,33 @@ async function run() {
         });
       }
     });
+
+    // feedback
+    app.get('/feedback', async (req, res) => {
+      try {
+        const query = {}
+
+        const result = await feedbackCollection.find(query).toArray()
+
+        res.send({
+          success: true,
+          data: result,
+          message: 'Successfully get data'
+        })
+      } catch (error) {
+        res.send({
+          success: false,
+          error: error.message,
+        })
+      }
+    })
+
+    // advertise
+    app.get('/advertise', async (req, res) => {
+      const advertise = await advertiseCollection.find().sort({ post_date: -1 }).limit(3).toArray();
+      res.send(advertise);
+    })
+
     // ================xxxxx Amit Paul code ends here xxxxx================
 
     // ================***** Anik Datta code goes here *****================
