@@ -26,6 +26,8 @@ async function run() {
     const propertyCollection = client.db("FareBD").collection("property");
     const usersCollection = client.db('FareBD').collection('users');
     const blogCollection = client.db('FareBD').collection('blog');
+    const feedbackCollection = client.db('FareBD').collection('feedback');
+    const advertiseCollection = client.db('FareBD').collection('advertise');
 
     //---------All collection End here---------
     app.get("/", async (req, res) => {
@@ -237,6 +239,33 @@ async function run() {
         })
       }
     })
+
+    // feedback
+    app.get('/feedback', async (req, res) => {
+      try {
+        const query = {}
+
+        const result = await feedbackCollection.find(query).toArray()
+
+        res.send({
+          success: true,
+          data: result,
+          message: 'Successfully get data'
+        })
+      } catch (error) {
+        res.send({
+          success: false,
+          error: error.message,
+        })
+      }
+    })
+
+    // 
+    app.get('/advertise', async (req, res) => {
+      const advertise = await advertiseCollection.find().sort({ post_date: -1 }).limit(3).toArray();
+      res.send(advertise);
+    })
+
     // ================xxxxx Amit Paul code ends here xxxxx================
 
     // ================***** Anik Datta code goes here *****================
