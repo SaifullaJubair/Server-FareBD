@@ -26,11 +26,11 @@ async function run() {
     const propertyCollection = client.db("FareBD").collection("property");
     const usersCollection = client.db("FareBD").collection("users");
     const blogCollection = client.db("FareBD").collection("blog");
-    const paymentsCollection = client.db("eStall").collection("payments");
+    const paymentsCollection = client.db("FareBD").collection("payments");
     const wishListCollection = client.db("FareBD").collection("wishlist");
     const advertiseCollection = client.db("FareBD").collection("advertise");
     const feedbackCollection = client.db('FareBD').collection('feedback');
-
+    const commentCollection = client.db('FareBD').collection('comment');
     //---------All collection End here---------
     app.get("/", async (req, res) => {
       console.log("FareBD server is running");
@@ -152,6 +152,9 @@ async function run() {
     // ================xxxxx Mostafizur code ends here xxxxx================
 
     // ================***** Jubair code goes here *****================
+
+    //division get by name
+
     app.get("/searchByDivision/:name", async (req, res) => {
       const name = req.params.name;
       // console.log(name);
@@ -162,6 +165,10 @@ async function run() {
       res.send(result);
     });
 
+
+    //----users api start here------//
+
+    //all user get
     app.get("/users", async (req, res) => {
       const query = {};
       const users = await usersCollection
@@ -171,12 +178,15 @@ async function run() {
       res.send(users);
     });
 
+    //user get by id
     app.get("/users/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const user = await usersCollection.findOne(query);
       res.send(user);
     });
+
+    //singleuser get by email
     app.get("/singleuser/:e", async (req, res) => {
       const e = req.params.e;
       const query = { email: e };
@@ -185,6 +195,7 @@ async function run() {
       res.send(result);
     });
 
+    // add user post 
     app.post("/adduser", async (req, res) => {
       const user = req.body;
       // console.log(user);
@@ -199,6 +210,7 @@ async function run() {
       res.send(result);
     });
 
+    //users role update
     app.put("/users/update/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -216,12 +228,105 @@ async function run() {
       res.send(result);
     });
 
+    //user delete
     app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const result = await usersCollection.deleteOne(filter);
       res.send(result);
     });
+
+    //----users api end here------//
+
+
+    //----comments api start here------//
+
+    //comment get by id
+    app.get('/comment/:id', async (req, res) => {
+      const id = req.params.id;
+
+      const query = { propertyId: id };
+      const cursor = commentCollection.find(query).limit(10);
+      const result = await cursor.sort({ createdAt: -1 }).toArray();
+      res.send(result)
+    })
+    app.get('/comments/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { email: id };
+      const cursor = commentCollection.find(query);
+      const result = await cursor.sort({ createdAt: -1 }).toArray();
+      res.send(result)
+    })
+    // add comment post 
+    app.post('/addcomment', async (req, res) => {
+      const comment = req.body;
+      // console.log(comment);
+      const result = await commentCollection.insertOne(comment);
+      res.send(result);
+    });
+
+    //comment update by it
+    app.put('/commentupdate/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const user = req.body;
+      const option = { upsert: true }
+      console.log(user)
+      console.log(id)
+      const updatedUser = {
+        $set: {
+          comment: user?.commentUpdate
+        }
+      }
+      const result = await commentCollection.updateOne(filter, updatedUser, option);
+      console.log(result)
+      res.send(result);
+      // console.log(updatedUser)
+    })
+
+
+    // comment delete by id
+    app.delete('/comment/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const result = await commentCollection.deleteOne(filter)
+      res.send(result)
+    })
+
+    //----comments api end here------//
+
+
+    //---search field----//
+
+    app.post('/search', async (req, res) => {
+      const { areaType, category, division, maxSize, minSize, purpose } = req.body;
+      if (!areaType && !category && !division && !maxSize && !minSize && !purpose) {
+        const allData = await propertyCollection.find({}).toArray();
+        return res.send(allData)
+      }
+      let allQueries = []
+      if (areaType) {
+        allQueries = [...allQueries, { area_type: { $eq: areaType } }]
+      }
+      if (category) {
+        allQueries = [...allQueries, { property_type: { $eq: category } }]
+      }
+      if (division) {
+        allQueries = [...allQueries, { division: { $eq: division } }]
+      }
+      if (purpose) {
+        allQueries = [...allQueries, { property_condition: { $eq: purpose } }]
+      }
+      if (minSize) {
+        allQueries = [...allQueries, { size: { $gt: minSize } }]
+      }
+      if (maxSize) {
+        allQueries = [...allQueries, { size: { $lt: maxSize } }]
+      }
+      const allData = await propertyCollection.find({ $and: allQueries }).toArray();
+      console.log(allQueries);
+      res.send(allData)
+    })
     // ================xxxxx Jubair code ends here xxxxx================
 
     // ================***** Zahid's code start here *****================
