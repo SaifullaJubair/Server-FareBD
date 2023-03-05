@@ -311,6 +311,22 @@ async function run() {
         res.send(result);
       }
     });
+    app.post("/users/update/:id", async (req, res) => {
+      const id = req.params.id;
+      const userRole = req.headers.role;
+      const filter = { _id: new ObjectId(id) };
+      // const option = { upsert: true };
+      const updatedDoc = {
+        $set: {
+          role: userRole,
+        },
+      };
+      const result = await usersCollection.updateOne(
+        filter,
+        updatedDoc
+      );
+      res.send(result);
+    });
 
     // Delete single property
     app.delete("/singleproperty/:id", async (req, res) => {
