@@ -29,8 +29,8 @@ async function run() {
     const paymentsCollection = client.db("FareBD").collection("payments");
     const wishListCollection = client.db("FareBD").collection("wishlist");
     const advertiseCollection = client.db("FareBD").collection("advertise");
-    const feedbackCollection = client.db('FareBD').collection('feedback');
-    const commentCollection = client.db('FareBD').collection('comment');
+    const feedbackCollection = client.db("FareBD").collection("feedback");
+    const commentCollection = client.db("FareBD").collection("comment");
     //---------All collection End here---------
     app.get("/", async (req, res) => {
       console.log("FareBD server is running");
@@ -103,6 +103,25 @@ async function run() {
       res.send(result);
     });
 
+    // get a wishlist
+    app.get("/wishlist/:id", async (req, res) => {
+      const { id } = req.params;
+      const { email } = req.query;
+      const query = { propertyId: id, userEmail: email };
+      const result = await wishListCollection.findOne(query);
+      if (result === null) return res.send({ message: "There is no data" });
+      return res.send(result);
+    });
+
+    // delete a wishlist
+    app.delete("/wishlist/:id", async (req, res) => {
+      const { id } = req.params;
+      const { email } = req.query;
+      const query = { propertyId: id, userEmail: email };
+      const result = await wishListCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // ================xxxxx Rezaul code ends here xxxxx================
 
     // ================***** Mostafizur code goes here *****================
@@ -125,7 +144,6 @@ async function run() {
         .collection("property")
         .find({ property_condition: "toSale" })
         .toArray();
-      console.log(toSell);
       res.send(toSell);
     });
 
@@ -161,10 +179,8 @@ async function run() {
       const result = await propertyCollection
         .find({ division: name })
         .toArray();
-      console.log(result, name);
       res.send(result);
     });
-
 
     //----users api start here------//
 
@@ -195,7 +211,7 @@ async function run() {
       res.send(result);
     });
 
-    // add user post 
+    // add user post
     app.post("/adduser", async (req, res) => {
       const user = req.body;
       // console.log(user);
@@ -238,27 +254,26 @@ async function run() {
 
     //----users api end here------//
 
-
     //----comments api start here------//
 
     //comment get by id
-    app.get('/comment/:id', async (req, res) => {
+    app.get("/comment/:id", async (req, res) => {
       const id = req.params.id;
 
       const query = { propertyId: id };
       const cursor = commentCollection.find(query).limit(10);
       const result = await cursor.sort({ createdAt: -1 }).toArray();
-      res.send(result)
-    })
-    app.get('/comments/:id', async (req, res) => {
+      res.send(result);
+    });
+    app.get("/comments/:id", async (req, res) => {
       const id = req.params.id;
       const query = { email: id };
       const cursor = commentCollection.find(query);
       const result = await cursor.sort({ createdAt: -1 }).toArray();
-      res.send(result)
-    })
-    // add comment post 
-    app.post('/addcomment', async (req, res) => {
+      res.send(result);
+    });
+    // add comment post
+    app.post("/addcomment", async (req, res) => {
       const comment = req.body;
       // console.log(comment);
       const result = await commentCollection.insertOne(comment);
@@ -266,67 +281,79 @@ async function run() {
     });
 
     //comment update by it
-    app.put('/commentupdate/:id', async (req, res) => {
+    app.put("/commentupdate/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
       const user = req.body;
-      const option = { upsert: true }
-      console.log(user)
-      console.log(id)
+      const option = { upsert: true };
+      console.log(user);
+      console.log(id);
       const updatedUser = {
         $set: {
-          comment: user?.commentUpdate
-        }
-      }
-      const result = await commentCollection.updateOne(filter, updatedUser, option);
-      console.log(result)
+          comment: user?.commentUpdate,
+        },
+      };
+      const result = await commentCollection.updateOne(
+        filter,
+        updatedUser,
+        option
+      );
+      console.log(result);
       res.send(result);
       // console.log(updatedUser)
-    })
-
+    });
 
     // comment delete by id
-    app.delete('/comment/:id', async (req, res) => {
+    app.delete("/comment/:id", async (req, res) => {
       const id = req.params.id;
-      const filter = { _id: new ObjectId(id) }
-      const result = await commentCollection.deleteOne(filter)
-      res.send(result)
-    })
+      const filter = { _id: new ObjectId(id) };
+      const result = await commentCollection.deleteOne(filter);
+      res.send(result);
+    });
 
     //----comments api end here------//
 
-
     //---search field----//
 
-    app.post('/search', async (req, res) => {
-      const { areaType, category, division, maxSize, minSize, purpose } = req.body;
-      if (!areaType && !category && !division && !maxSize && !minSize && !purpose) {
+    app.post("/search", async (req, res) => {
+      const { areaType, category, division, maxSize, minSize, purpose } =
+        req.body;
+      if (
+        !areaType &&
+        !category &&
+        !division &&
+        !maxSize &&
+        !minSize &&
+        !purpose
+      ) {
         const allData = await propertyCollection.find({}).toArray();
-        return res.send(allData)
+        return res.send(allData);
       }
-      let allQueries = []
+      let allQueries = [];
       if (areaType) {
-        allQueries = [...allQueries, { area_type: { $eq: areaType } }]
+        allQueries = [...allQueries, { area_type: { $eq: areaType } }];
       }
       if (category) {
-        allQueries = [...allQueries, { property_type: { $eq: category } }]
+        allQueries = [...allQueries, { property_type: { $eq: category } }];
       }
       if (division) {
-        allQueries = [...allQueries, { division: { $eq: division } }]
+        allQueries = [...allQueries, { division: { $eq: division } }];
       }
       if (purpose) {
-        allQueries = [...allQueries, { property_condition: { $eq: purpose } }]
+        allQueries = [...allQueries, { property_condition: { $eq: purpose } }];
       }
       if (minSize) {
-        allQueries = [...allQueries, { size: { $gt: minSize } }]
+        allQueries = [...allQueries, { size: { $gt: minSize } }];
       }
       if (maxSize) {
-        allQueries = [...allQueries, { size: { $lt: maxSize } }]
+        allQueries = [...allQueries, { size: { $lt: maxSize } }];
       }
-      const allData = await propertyCollection.find({ $and: allQueries }).toArray();
+      const allData = await propertyCollection
+        .find({ $and: allQueries })
+        .toArray();
       console.log(allQueries);
-      res.send(allData)
-    })
+      res.send(allData);
+    });
     // ================xxxxx Jubair code ends here xxxxx================
 
     // ================***** Zahid's code start here *****================
@@ -415,6 +442,7 @@ async function run() {
         const result = await advertiseCollection.insertOne(post);
         res.send(result);
       }
+    });
     app.post("/users/update/:id", async (req, res) => {
       const id = req.params.id;
       const userRole = req.headers.role;
@@ -425,10 +453,7 @@ async function run() {
           role: userRole,
         },
       };
-      const result = await usersCollection.updateOne(
-        filter,
-        updatedDoc
-      );
+      const result = await usersCollection.updateOne(filter, updatedDoc);
       res.send(result);
     });
 
@@ -516,43 +541,61 @@ async function run() {
     });
 
     // feedback
-    app.get('/feedback', async (req, res) => {
+    app.get("/feedback", async (req, res) => {
       try {
-        const query = {}
+        const query = {};
 
-        const result = await feedbackCollection.find(query).toArray()
+        const result = await feedbackCollection.find(query).toArray();
 
         res.send({
           success: true,
           data: result,
-          message: 'Successfully get data'
-        })
+          message: "Successfully get data",
+        });
       } catch (error) {
         res.send({
           success: false,
           error: error.message,
-        })
+        });
       }
-    })
+    });
 
     // advertise
-    app.get('/advertise', async (req, res) => {
-      const advertise = await advertiseCollection.find().sort({ post_date: -1 }).limit(3).toArray();
+    app.get("/advertise", async (req, res) => {
+      const advertise = await advertiseCollection
+        .find()
+        .sort({ post_date: -1 })
+        .limit(3)
+        .toArray();
       res.send(advertise);
-    })
+    });
 
     // ================xxxxx Amit Paul code ends here xxxxx================
 
     // ================***** Anik Datta code goes here *****================
-    app.get('/get-wishlist', async (req, res) => {
+    app.get("/get-wishlist", async (req, res) => {
       const wishlist = await wishListCollection.find().toArray();
       res.send(wishlist);
-    })
-    app.post('/add-wishlist', async (req, res) => {
+    });
+    app.post("/add-wishlist", async (req, res) => {
       const wishItem = req.body;
+      console.log(req.body);
+      const query = {
+        userId: req.body.userId,
+        userEmail: req.body.userEmail,
+        propertyId: req.body.propertyId,
+      };
+      // Reazaul wrote this piece of code for prevent adding wishlist to the database again
+      const alreadyAddedWishlist = await wishListCollection.findOne(query);
+
+      if (alreadyAddedWishlist)
+        return res.send({
+          message: "This property already wishlisted",
+        });
+
       const result = await wishListCollection.insertOne(wishItem);
 
-      res.send(result)
+      res.send(result);
     });
     // ================xxxxx Anik Datta code ends here xxxxx================
   } finally {
