@@ -423,11 +423,12 @@ async function run() {
       res.send(wishlist);
     });
     // Buyer My Wishlist
-    app.get("/wishlist/:email", async (req, res) => {
+    app.get("/mywishlist/:email", async (req, res) => {
       const email = req.params.email;
       const query = { userEmail: email };
       const cursor = wishListCollection.find(query);
       const wishlist = await cursor.sort({ createdAt: -1 }).toArray();
+      if (wishlist === null) return res.send({ message: "There is no data" });
       res.send(wishlist);
     });
 
@@ -464,6 +465,16 @@ async function run() {
       const result = await propertyCollection.deleteOne(filter);
       res.send(result);
     });
+
+    // Delete MyWishlist
+    app.delete("/mywishlist/:id", async (req, res) => {
+      const { id } = req.params;
+      const { email } = req.query;
+      const query = { propertyId: id, userEmail: email };
+      const result = await wishListCollection.deleteOne(query);
+      res.send(result);
+    });
+
     // ================xxxxx Zahid's code ends here xxxxx================
 
     // ================***** Amit Paul code goes here *****================
