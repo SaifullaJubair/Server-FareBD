@@ -255,6 +255,12 @@ async function run() {
     //----users api end here------//
 
     //----comments api start here------//
+    
+    // all comment get
+    app.get("/allcomments/", async (req, res) => {
+      const result = await commentCollection.find().sort({ createdAt: -1 }).toArray();
+      res.send(result);
+    });
 
     //comment get by id
     app.get("/comment/:id", async (req, res) => {
