@@ -207,7 +207,6 @@ async function run() {
       const e = req.params.e;
       const query = { email: e };
       const result = await usersCollection.findOne(query);
-
       res.send(result);
     });
 
@@ -255,10 +254,13 @@ async function run() {
     //----users api end here------//
 
     //----comments api start here------//
-    
+
     // all comment get
     app.get("/allcomments/", async (req, res) => {
-      const result = await commentCollection.find().sort({ createdAt: -1 }).toArray();
+      const result = await commentCollection
+        .find()
+        .sort({ createdAt: -1 })
+        .toArray();
       res.send(result);
     });
 
